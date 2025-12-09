@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 
 tf.random.set_seed(42)
 
@@ -35,3 +36,84 @@ Common ways to improve a model (changing hyperparameters):
     Parameters - Patterns a neural network learns, these are not coded by us
     Hyperparameters - It is like a dial that we can adjust to tweak the performance of the neural network
 '''
+
+# Split the data into train and test sets
+X_train = X[:40] # The first 40 elements of X (80% of the data)
+y_train = y[:40]
+
+X_test = X[40:] # The last 10 elements (20% of the data)
+y_test = y[40:]
+
+print(len(X_train), len(y_train), len(X_test), len(y_test))
+
+# Visualizing the data
+plt.figure(figsize=(10, 7))
+
+# Plot training data in blue
+plt.scatter(X_train, y_train, c="b", label="Training Data")
+
+# Plot test data in green
+plt.scatter(X_test, y_test, c="g", label="Test Data")
+
+# Show the legend
+plt.legend()
+
+# Building a neural network for this data
+
+# 1. Create the model, this time we manually give it the input shape
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(1, input_shape=(1,)) # Just one number being passed
+])
+
+# 2. Compile the model
+model.compile(loss=tf.keras.losses.mae,
+              optimizer=tf.keras.optimizers.SGD(),
+              metrics=["mae"])
+
+# Get summary
+model.summary()
+''' 
+OUTPUT:
+Model: "sequential_2"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ dense_5 (Dense)                 │ (None, 1)              │             2 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 2 (8.00 B) -> Total number of parameters in the model
+ Trainable params: 2 (8.00 B) -> The parameters (patterns) that the model can update as it trains
+ Non-trainable params: 0 (0.00 B) -> The parameters that the model cannot change (usually used when bringing in already trained parameters from different models using transfer learning)
+'''
+
+# 3. Fit the model
+model.fit(X_train, y_train, epochs=100, verbose=0)
+
+# Another way to visualize
+from tensorflow.keras.utils import plot_model
+
+plot_model(model=model, show_shapes=True)
+
+# Visualizing the model's predictions (plotting them against ground truth labels)
+y_preds = model.predict(X_test)
+
+# Plotting function
+def plot_predictions(train_data=X_train,
+                     train_labels=y_train,
+                     test_data=X_test,
+                     test_labels=y_test,
+                     predictions=y_preds):
+  plt.figure(figsize=(10, 7))
+
+  # Plot training data in blue
+  plt.scatter(train_data, train_labels, c="b", label="Training Data")
+
+  # Plot test data in green
+  plt.scatter(test_data, test_labels, c="g", label="Testing Data")
+
+  # Plot model's prediction in red
+  plt.scatter(test_data, predictions, c="r", label="Predictions")
+
+  # Show the legend
+  plt.legend()
+
+plot_predictions()
