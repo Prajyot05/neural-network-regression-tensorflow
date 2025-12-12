@@ -183,3 +183,10 @@ model_results = [
 
 all_results = pd.DataFrame(model_results, columns=["model", "mae", "mse"])
 print(all_results) # So now we know what works and what doesn't
+
+# Saving the model (HDF5 is deprecated, keras is recommended)
+model_3.save("best_model_till_now.keras")
+
+# Loading the saved model
+loaded_model = tf.keras.models.load_model("best_model_till_now.keras")
+print(loaded_model.summary())
