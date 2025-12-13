@@ -190,3 +190,46 @@ model_3.save("best_model_till_now.keras")
 # Loading the saved model
 loaded_model = tf.keras.models.load_model("best_model_till_now.keras")
 print(loaded_model.summary())
+
+# Working with larger datasets
+import tensorflow as tf
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read the insurance dataset
+insurance = pd.read_csv("https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/refs/heads/master/insurance.csv")
+
+# We need to convert the non-numerical data into numerical data before passing it to a model (numerical encoding)
+# This function turns categorical data into one-hot encoding format
+insurance_one_hot = pd.get_dummies(insurance)
+print(insurance_one_hot)
+
+# Create features and labels
+X = insurance_one_hot.drop("charges", axis=1)
+y = insurance_one_hot["charges"]
+
+# Creating training and test sets
+from sklearn.model_selection import train_test_split
+
+# Randomly shuffles the data (we've told it to give 20% data to test and rest to train)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Now build a neural network to learn from that data
+tf.random.set_seed(42)
+
+# 1. Create
+insurance_model = tf.keras.Sequential([
+    tf.keras.layers.Dense(10),
+    tf.keras.layers.Dense(1)
+])
+
+# 2. Compile
+insurance_model.compile(loss=tf.keras.losses.mae,
+                        optimizer=tf.keras.optimizers.SGD(),
+                        metrics=["mae"])
+
+# 3. Fit
+insurance_model.fit(X_train, y_train, epochs=100)
+
+# Evaluate the results of the insurance_model on the test data
+insurance_model.evaluate(X_test, y_test) # Very bad MAE right now
